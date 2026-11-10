@@ -20,3 +20,6 @@ xcuserdata/
 
 # Left behind by scripts/install.sh when a build fails
 build-install.log
+
+# Scratch files of the build process
+.superpowers/
