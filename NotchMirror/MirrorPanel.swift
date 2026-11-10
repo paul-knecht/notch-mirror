@@ -159,7 +159,8 @@ final class MirrorPanel: NSPanel {
                                               y: picture.midY - 36)
     }
 
-    // Changes the size of the visible part, with or without animation.
+    // Changes the size of the visible part, with or without animation,
+    // and calls `completion` once the new size is reached.
     private func setMaskSize(_ size: CGSize, duration: Double, then completion: (() -> Void)?) {
         CATransaction.begin()
         if duration == 0 {
@@ -167,10 +168,13 @@ final class MirrorPanel: NSPanel {
         } else {
             CATransaction.setAnimationDuration(duration)
             CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
+            CATransaction.setCompletionBlock(completion)
         }
-        CATransaction.setCompletionBlock(completion)
         maskLayer.bounds = CGRect(origin: .zero, size: size)
         CATransaction.commit()
+
+        // Without animation there is nothing to wait for.
+        if duration == 0 { completion?() }
     }
 
     @objc private func settingsButtonClicked() {

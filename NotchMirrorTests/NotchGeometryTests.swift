@@ -29,20 +29,21 @@ final class NotchGeometryTests: XCTestCase {
     }
 
     func testPanelFrame() {
-        XCTAssertEqual(NotchGeometry.panelFrame(mac), CGRect(x: 570, y: 748.5, width: 570, height: 358.5))
+        XCTAssertEqual(NotchGeometry.panelFrame(mac), CGRect(x: 570, y: 748, width: 570, height: 359))
     }
 
     func testPictureRect() {
-        let picture = NotchGeometry.pictureRect(panelSize: CGSize(width: 570, height: 358.5))
+        let picture = NotchGeometry.pictureRect(panelSize: CGSize(width: 570, height: 359))
         XCTAssertEqual(picture, CGRect(x: 10, y: 10, width: 550, height: 309))
         // The picture ends a small gap below the notch, so the notch never covers it.
-        let notchBottom = 358.5 - 33.5
-        XCTAssertEqual(notchBottom - picture.maxY, NotchGeometry.gapBelowNotch)
+        let notchBottom = 359 - 33.5
+        XCTAssertGreaterThanOrEqual(notchBottom - picture.maxY, NotchGeometry.gapBelowNotch)
     }
 
+    // Window frames are whole numbers, and the click area stays inside the notch.
     func testClickRect() {
         let notch = CGRect(x: 762.5, y: 1073.5, width: 185, height: 33.5)
-        XCTAssertEqual(NotchGeometry.clickRect(notch: notch), CGRect(x: 766.5, y: 1076.5, width: 177, height: 30.5))
+        XCTAssertEqual(NotchGeometry.clickRect(notch: notch), CGRect(x: 767, y: 1077, width: 176, height: 30))
     }
 
     // Without a notch the panel drops from the top centre of that screen.

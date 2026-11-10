@@ -59,7 +59,8 @@ enum NotchGeometry {
 
         var width = max(origin.width, (s.frame.width / 3).rounded())
         width = min(width, s.frame.width)
-        let height = topInset + gapBelowNotch + pictureHeight(panelWidth: width) + margin
+        // Windows sit on whole points, so the height is rounded up.
+        let height = (topInset + gapBelowNotch + pictureHeight(panelWidth: width) + margin).rounded(.up)
 
         // Centre on the notch, then push back inside the screen if needed.
         var x = origin.midX - width / 2
@@ -77,9 +78,12 @@ enum NotchGeometry {
 
     // The area that reacts to clicks: a little smaller than the notch, so
     // nothing peeks out past the notch's rounded lower corners.
+    // Windows sit on whole points, so the edges are rounded inwards.
     static func clickRect(notch: CGRect) -> CGRect {
-        CGRect(x: notch.minX + 4, y: notch.minY + 3,
-               width: notch.width - 8, height: notch.height - 3)
+        let left = (notch.minX + 4).rounded(.up)
+        let right = (notch.maxX - 4).rounded(.down)
+        let bottom = (notch.minY + 3).rounded(.up)
+        return CGRect(x: left, y: bottom, width: right - left, height: notch.maxY - bottom)
     }
 
     // The first screen that has a notch, if any.
