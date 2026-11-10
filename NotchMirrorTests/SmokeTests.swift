@@ -81,6 +81,12 @@ final class SmokeTests: XCTestCase {
         XCTAssertFalse(delegate.logic.isOpen)
     }
 
+    // The click area must lie above the open panel. Otherwise the panel
+    // covers it, and a second click on the notch could not close the mirror.
+    func testClickAreaLiesAboveThePanel() {
+        XCTAssertGreaterThan(delegate.clickArea.level.rawValue, delegate.panel.level.rawValue)
+    }
+
     // MARK: - The setting is remembered
 
     func testSetTriggerPersists() {
@@ -100,6 +106,14 @@ final class SmokeTests: XCTestCase {
         let window = delegate.settingsWindow
         XCTAssertEqual(window?.title, "NotchMirror")
         XCTAssertEqual(window?.isVisible, true)
+    }
+
+    // The first-launch hint names the trigger that is really there.
+    func testWelcomeText() {
+        XCTAssertEqual(SettingsView.welcomeText(notchAvailable: true),
+                       "Click the notch to open the mirror. Right-click it for these settings.")
+        XCTAssertEqual(SettingsView.welcomeText(notchAvailable: false),
+                       "Click the icon in the menu bar to open the mirror. Right-click it for these settings.")
     }
 
     func testCameraAccessLine() {

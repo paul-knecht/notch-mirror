@@ -24,8 +24,10 @@ final class NotchClickArea: NSPanel {
         super.init(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel],
                    backing: .buffered, defer: false)
         isFloatingPanel = true
-        // Above the menu bar, like the mirror panel.
-        level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 3)
+        // Above the menu bar, and one level above the mirror panel: the
+        // open panel covers the notch, and a click on the notch must still
+        // reach this window to close the mirror again.
+        level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 4)
         hidesOnDeactivate = false
         isReleasedWhenClosed = false
         backgroundColor = .black

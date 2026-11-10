@@ -7,6 +7,8 @@ struct SettingsView: View {
 
     // Show the one-time hint at the top?
     let showsWelcome: Bool
+    // Is there a notch to click right now?
+    let notchAvailable: Bool
     let access: CameraAccess
 
     // The current choices. @State lets the controls change them.
@@ -15,6 +17,7 @@ struct SettingsView: View {
 
     // What to do when the user changes something.
     let setTrigger: (Trigger) -> Void
+    // Tries to switch "start at login" and returns how it is set afterwards.
     let setStartAtLogin: (Bool) -> Bool
     let openPrivacySettings: () -> Void
     let quit: () -> Void
@@ -22,7 +25,7 @@ struct SettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
             if showsWelcome {
-                Text("Click the notch to open the mirror. Right-click it for these settings.")
+                Text(SettingsView.welcomeText(notchAvailable: notchAvailable))
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -37,9 +40,11 @@ struct SettingsView: View {
 
             Toggle("Start at Login", isOn: $startAtLogin)
                 .onChange(of: startAtLogin) { _, wanted in
-                    // If macOS refuses, put the switch back.
-                    if !setStartAtLogin(wanted) {
-                        startAtLogin = !wanted
+                    // Show what macOS really did. If it refused, the
+                    // switch goes back by itself.
+                    let actual = setStartAtLogin(wanted)
+                    if actual != wanted {
+                        startAtLogin = actual
                     }
                 }
 
@@ -55,6 +60,12 @@ struct SettingsView: View {
         }
         .padding(20)
         .frame(width: 320)
+    }
+
+    // The one-time hint. Without a notch the menu bar icon is the way in.
+    static func welcomeText(notchAvailable: Bool) -> String {
+        let trigger = notchAvailable ? "the notch" : "the icon in the menu bar"
+        return "Click \(trigger) to open the mirror. Right-click it for these settings."
     }
 
     // One line about whether the app may use the camera.

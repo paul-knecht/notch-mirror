@@ -150,6 +150,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 panel.open(on: screenForPanel(), animated: !isRunningTests)
             case .updatePanel(let content):
                 panel.show(content)
+                // Answering macOS's question took the keyboard away from
+                // the panel. Take it back, so esc works again.
+                panel.makeKey()
             case .hidePanel:
                 panel.close(animated: !isRunningTests) {}
             case .askForAccess:
@@ -281,12 +284,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let view = SettingsView(
             showsWelcome: welcome,
+            notchAvailable: currentNotchScreen() != nil,
             // The tests must not look at the real camera or login items.
             access: isRunningTests ? .notAsked : camera.access,
             trigger: settings.trigger,
             startAtLogin: isRunningTests ? false : LoginItem.isEnabled,
             setTrigger: { [weak self] trigger in self?.setTrigger(trigger) },
-            setStartAtLogin: { enabled in LoginItem.setEnabled(enabled) },
+            setStartAtLogin: { enabled in
+                LoginItem.setEnabled(enabled)
+                return LoginItem.isEnabled
+            },
             openPrivacySettings: { [weak self] in self?.openPrivacySettings() },
             quit: { NSApp.terminate(nil) }
         )

@@ -144,14 +144,15 @@ final class MirrorPanel: NSPanel {
         // The mask's anchor point (middle of its top edge) goes to the
         // middle of the panel's top edge. Layer coordinates have y growing
         // upwards, so the top is at "height".
+        let picture = NotchGeometry.pictureRect(panelSize: size)
+        pictureView.frame = picture
+
+        // Layers animate changes by themselves. Here they must jump.
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         maskLayer.position = CGPoint(x: size.width / 2, y: size.height)
-        CATransaction.commit()
-
-        let picture = NotchGeometry.pictureRect(panelSize: size)
-        pictureView.frame = picture
         pictureView.layer?.sublayers?.forEach { $0.frame = pictureView.bounds }
+        CATransaction.commit()
 
         messageLabel.frame = CGRect(x: picture.minX, y: picture.midY, width: picture.width, height: 20)
         settingsButton.sizeToFit()
@@ -162,13 +163,23 @@ final class MirrorPanel: NSPanel {
     // Changes the size of the visible part, with or without animation,
     // and calls `completion` once the new size is reached.
     private func setMaskSize(_ size: CGSize, duration: Double, then completion: (() -> Void)?) {
+        // Where the animation starts: the size on screen right now.
+        let current = (maskLayer.presentation() ?? maskLayer).bounds.size
+
         CATransaction.begin()
-        if duration == 0 {
-            CATransaction.setDisableActions(true)
-        } else {
-            CATransaction.setAnimationDuration(duration)
-            CATransaction.setAnimationTimingFunction(CAMediaTimingFunction(name: .easeOut))
+        // We animate by hand below, so switch the automatic animation off.
+        CATransaction.setDisableActions(true)
+        if duration > 0 {
             CATransaction.setCompletionBlock(completion)
+            let animation = CABasicAnimation(keyPath: "bounds.size")
+            animation.fromValue = NSValue(size: current)
+            animation.toValue = NSValue(size: size)
+            animation.duration = duration
+            animation.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            // Using the same name replaces an animation that is still running.
+            maskLayer.add(animation, forKey: "size")
+        } else {
+            maskLayer.removeAnimation(forKey: "size")
         }
         maskLayer.bounds = CGRect(origin: .zero, size: size)
         CATransaction.commit()

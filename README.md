@@ -52,6 +52,13 @@ The tests never switch the camera on.
 
 Requires macOS 14 or later. Written in Swift with AppKit and AVFoundation.
 
+## Good to know
+
+- While the mirror is open it has the keyboard, so that `esc` can close
+  it. Typing goes nowhere until you close the mirror.
+- Clicking the notch only works on the MacBook's own display, since that
+  is where the notch is.
+
 ## Not in this version
 
 A keyboard shortcut, choosing another camera, resizing the panel, and

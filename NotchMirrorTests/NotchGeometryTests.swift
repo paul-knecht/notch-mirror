@@ -19,6 +19,25 @@ final class NotchGeometryTests: XCTestCase {
         XCTAssertEqual(NotchGeometry.notchRect(mac), CGRect(x: 762.5, y: 1073.5, width: 185, height: 33.5))
     }
 
+    // The MacBook's screen is not always at (0, 0): an external display
+    // can sit to its left or below it. The notch must be found on the
+    // MacBook's screen whichever way macOS reports the two side areas
+    // (measured from the screen's own corner, or from the main screen's).
+    func testNotchRectOnScreenAwayFromOrigin() {
+        let frame = CGRect(x: -1710, y: 300, width: 1710, height: 1107)
+        let expected = CGRect(x: -947.5, y: 1373.5, width: 185, height: 33.5)
+
+        let local = ScreenInfo(frame: frame, safeTop: 33.5,
+                               topLeft: CGRect(x: 0, y: 1073.5, width: 762.5, height: 33.5),
+                               topRight: CGRect(x: 947.5, y: 1073.5, width: 762.5, height: 33.5))
+        XCTAssertEqual(NotchGeometry.notchRect(local), expected)
+
+        let global = ScreenInfo(frame: frame, safeTop: 33.5,
+                                topLeft: CGRect(x: -1710, y: 1373.5, width: 762.5, height: 33.5),
+                                topRight: CGRect(x: -762.5, y: 1373.5, width: 762.5, height: 33.5))
+        XCTAssertEqual(NotchGeometry.notchRect(global), expected)
+    }
+
     func testNoNotchWithoutInset() {
         XCTAssertNil(NotchGeometry.notchRect(plain))
     }
@@ -64,15 +83,16 @@ final class NotchGeometryTests: XCTestCase {
         XCTAssertEqual(panel.maxY, 300)
     }
 
-    // A panel never sticks out over the side of its screen.
-    func testPanelIsPushedBackInside() {
-        let offCentre = ScreenInfo(frame: CGRect(x: 0, y: 0, width: 600, height: 400),
-                                   safeTop: 30,
-                                   topLeft: CGRect(x: 0, y: 370, width: 20, height: 30),
-                                   topRight: CGRect(x: 80, y: 370, width: 520, height: 30))
-        let panel = NotchGeometry.panelFrame(offCentre)
-        XCTAssertEqual(panel.minX, 0)
-        XCTAssertEqual(panel.width, 200)
+    // On a screen away from (0, 0) the panel is on that screen, centred
+    // under its notch.
+    func testPanelOnScreenAwayFromOrigin() {
+        let left = ScreenInfo(frame: CGRect(x: -1710, y: 300, width: 1710, height: 1107),
+                              safeTop: 33.5,
+                              topLeft: CGRect(x: 0, y: 1073.5, width: 762.5, height: 33.5),
+                              topRight: CGRect(x: 947.5, y: 1073.5, width: 762.5, height: 33.5))
+        let panel = NotchGeometry.panelFrame(left)
+        XCTAssertEqual(panel, CGRect(x: -1140, y: 1048, width: 570, height: 359))
+        XCTAssertTrue(left.frame.contains(panel))
     }
 
     func testNotchScreenPicksTheOneWithANotch() {

@@ -37,10 +37,15 @@ enum NotchGeometry {
 
     // The notch: the gap between the two menu bar areas at the top.
     // nil if the screen has no notch.
+    //
+    // Only the widths of the two areas are used, not their positions. The
+    // notch is in the middle of the screen, so this works wherever the
+    // screen sits among several displays.
     static func notchRect(_ s: ScreenInfo) -> CGRect? {
         guard s.safeTop > 0, let left = s.topLeft, let right = s.topRight else { return nil }
-        return CGRect(x: left.maxX, y: s.frame.maxY - s.safeTop,
-                      width: right.minX - left.maxX, height: s.safeTop)
+        let width = s.frame.width - left.width - right.width
+        return CGRect(x: s.frame.midX - width / 2, y: s.frame.maxY - s.safeTop,
+                      width: width, height: s.safeTop)
     }
 
     // Where the animation starts and ends: the notch, or a thin strip at
@@ -62,10 +67,10 @@ enum NotchGeometry {
         // Windows sit on whole points, so the height is rounded up.
         let height = (topInset + gapBelowNotch + pictureHeight(panelWidth: width) + margin).rounded(.up)
 
-        // Centre on the notch, then push back inside the screen if needed.
-        var x = origin.midX - width / 2
-        x = min(max(x, s.frame.minX), s.frame.maxX - width)
-        return CGRect(x: x, y: s.frame.maxY - height, width: width, height: height)
+        // Centred on the notch, which is the middle of the screen. Because
+        // the panel is never wider than the screen, it always fits.
+        return CGRect(x: origin.midX - width / 2, y: s.frame.maxY - height,
+                      width: width, height: height)
     }
 
     // The picture inside the panel, in the panel's own coordinates
