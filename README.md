@@ -63,3 +63,7 @@ Requires macOS 14 or later. Written in Swift with AppKit and AVFoundation.
 
 A keyboard shortcut, choosing another camera, resizing the panel, and
 taking snapshots.
+
+## Licence
+
+MIT, see [LICENSE](LICENSE).
