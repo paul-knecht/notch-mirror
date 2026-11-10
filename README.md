@@ -5,6 +5,12 @@ panel grows out of the notch with the live picture from the Mac's camera,
 flipped left to right like a real mirror. Another click, `esc`, or a click
 anywhere else, and it slides back into the notch.
 
+## Why I built it
+
+I wanted a quick look in the mirror before a call or a class, in one click. It comes out of the notch, so it feels like part of the Mac and adds no icon to the menu bar.
+
+Built with [Claude Code](https://claude.com/claude-code) while learning Swift, Xcode and Git.
+
 ## Two ways to open it
 
 - **Notch** (the default): click the notch. There is no menu bar icon.
