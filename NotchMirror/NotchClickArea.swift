@@ -2,8 +2,9 @@ import AppKit
 
 // An invisible window that sits exactly on the notch and reacts to clicks.
 //
-// It is black, not see-through: macOS lets clicks fall through fully
-// transparent windows. Nobody sees the black, because the notch covers it.
+// It is 1% black, which nobody can see. It must not be 0%: macOS lets
+// clicks fall through fully transparent windows, but hands them to a
+// window that is even slightly visible.
 final class NotchClickArea: NSPanel {
 
     // Called on a left click.
@@ -30,8 +31,8 @@ final class NotchClickArea: NSPanel {
         level = NSWindow.Level(rawValue: NSWindow.Level.mainMenu.rawValue + 4)
         hidesOnDeactivate = false
         isReleasedWhenClosed = false
-        backgroundColor = .black
-        isOpaque = true
+        backgroundColor = NSColor.black.withAlphaComponent(0.01)
+        isOpaque = false
         hasShadow = false
         // Present on every Space (desktop), also over full-screen apps.
         collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]

@@ -87,6 +87,16 @@ final class SmokeTests: XCTestCase {
         XCTAssertGreaterThan(delegate.clickArea.level.rawValue, delegate.panel.level.rawValue)
     }
 
+    // The click area must not be visible, so it is almost fully
+    // see-through. "Almost" matters: macOS hands clicks to a window that
+    // is 1% visible, but lets them fall through one that is 0% visible.
+    func testClickAreaIsAlmostButNotFullySeeThrough() {
+        XCTAssertFalse(delegate.clickArea.isOpaque)
+        let alpha = delegate.clickArea.backgroundColor.alphaComponent
+        XCTAssertLessThan(alpha, 0.05)
+        XCTAssertGreaterThan(alpha, 0)
+    }
+
     // MARK: - The setting is remembered
 
     func testSetTriggerPersists() {

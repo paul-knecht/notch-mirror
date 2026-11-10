@@ -164,10 +164,10 @@ starting 762.5 points from the left.
 (window level: main menu + 3), present on every Space and over full-screen
 apps:
 - the mirror panel, transparent except for the black shape;
-- the notch click area, a black window slightly smaller than the notch (so
-  nothing peeks out past the notch's rounded corners). It must be black, not
-  transparent: fully transparent windows let clicks fall through, and the
-  notch hides it anyway.
+- the notch click area, a window slightly smaller than the notch that is
+  1% black: invisible, but not fully transparent, because fully transparent
+  windows let clicks fall through. (It was solid black at first; that showed
+  as a dark shape below the physical notch, so it was changed.)
 
 **Animation.** The mirror view is always full size; a mask layer anchored at
 the top centre grows from the notch's size to the full size.
