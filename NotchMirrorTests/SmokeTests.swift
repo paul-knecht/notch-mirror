@@ -93,6 +93,22 @@ final class SmokeTests: XCTestCase {
         XCTAssertFalse(delegate.settings.defaults === UserDefaults.standard)
     }
 
+    // MARK: - Settings window
+
+    func testSettingsWindowOpens() {
+        delegate.showSettings(welcome: false)
+        let window = delegate.settingsWindow
+        XCTAssertEqual(window?.title, "NotchMirror")
+        XCTAssertEqual(window?.isVisible, true)
+    }
+
+    func testCameraAccessLine() {
+        XCTAssertEqual(SettingsView.accessText(.granted), "Camera access: granted")
+        XCTAssertEqual(SettingsView.accessText(.notAsked),
+                       "Camera access: not asked yet. macOS asks the first time you open the mirror.")
+        XCTAssertEqual(SettingsView.accessText(.denied), "Camera access: denied")
+    }
+
     // MARK: - Texts
 
     func testMessages() {

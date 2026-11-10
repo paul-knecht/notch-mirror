@@ -1,4 +1,5 @@
 import AppKit
+import SwiftUI
 
 // Ties the app together: the click area on the notch, the menu bar icon,
 // the mirror panel and the camera.
@@ -70,6 +71,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         watchForReasonsToClose()
+
+        // In notch mode a freshly installed app shows nothing at all, so
+        // the very first launch opens the settings window with a hint.
+        if !settings.didShowWelcome {
+            settings.didShowWelcome = true
+            showSettings(welcome: true)
+        }
+    }
+
+    // Called when the user opens NotchMirror while it is already running
+    // (from Applications or Spotlight). This is the way to reach the
+    // settings, and to quit, when nothing of the app is visible.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        showSettings(welcome: false)
+        return true
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -255,6 +271,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func toggleStartAtLogin() {
         LoginItem.setEnabled(!LoginItem.isEnabled)
+    }
+
+    // MARK: - Settings window
+
+    func showSettings(welcome: Bool) {
+        // Build the window anew each time, so the facts in it are current.
+        settingsWindow?.close()
+
+        let view = SettingsView(
+            showsWelcome: welcome,
+            // The tests must not look at the real camera or login items.
+            access: isRunningTests ? .notAsked : camera.access,
+            trigger: settings.trigger,
+            startAtLogin: isRunningTests ? false : LoginItem.isEnabled,
+            setTrigger: { [weak self] trigger in self?.setTrigger(trigger) },
+            setStartAtLogin: { enabled in LoginItem.setEnabled(enabled) },
+            openPrivacySettings: { [weak self] in self?.openPrivacySettings() },
+            quit: { NSApp.terminate(nil) }
+        )
+
+        let window = NSWindow(contentRect: .zero, styleMask: [.titled, .closable],
+                              backing: .buffered, defer: false)
+        window.title = "NotchMirror"
+        // We keep the window in settingsWindow ourselves.
+        window.isReleasedWhenClosed = false
+        window.contentView = NSHostingView(rootView: view)
+        settingsWindow = window
+
+        // A background app has to step forward, or the window opens behind others.
+        if !isRunningTests { NSApp.activate(ignoringOtherApps: true) }
+        window.center()
+        window.makeKeyAndOrderFront(nil)
     }
 
     // MARK: - Privacy settings
